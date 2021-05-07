@@ -1,0 +1,295 @@
+from tkinter import *
+from random import randint
+
+tk=Tk()
+tk.geometry('565x86')#5 высоты - 86, 13 ширины - 101
+FirstGame=1
+
+class ButtonPro:
+    def __init__(self,tk,width,height,column,row):
+        self.btn=Button(tk,width=width,height=height,bg='white',font=('Ariel',10))
+        self.btn.grid(column=column,row=row)
+        self.btn.configure(state=DISABLED)
+        self.haveBomb=field[row][column]
+        self.BombsNear=0
+        self.x=1;self.y=1
+        self.rangC=0;self.rangR=0
+        self.column=column;self.row=row
+        self.opened=0
+        self.btn.bind('<Button-1>',lambda e,b=1,IsB=1 :self.com(e,b,IsB))
+        self.btn.bind('<Button-3>',lambda e,b=0,IsB=1 :self.com(e,b,IsB))
+        if column==0:
+            self.rangC=1
+        if column+1==c:
+            self.rangC=1
+        if row==0:
+            self.y=0
+            self.rangR=1
+        if row+1==r:
+            self.rangR=1
+        for br in range(3-self.rangR):
+            if column==0:
+                self.x=0
+            else:
+                self.x=1
+            for bc in range(3-self.rangC):
+                if field[row-self.y][column-self.x]==1:
+                    self.BombsNear+=1
+                self.x-=1
+            self.y-=1
+        if self.haveBomb==1:
+            self.BombsNear-=1     
+    def com(self,event,button,IsItButton):
+        global End,ButtonsOpen,bombsDiscover,fieldBtn
+        if button and End==0 and not self.btn['text']=='*':
+            self.btn.configure(relief=SUNKEN)#RAISED антоним
+            if not self.haveBomb:
+                if self.opened==0 or IsItButton==0:
+                    if not self.BombsNear==0:
+                        self.changeFG()
+                        self.text(self.BombsNear)
+                    if self.BombsNear==0:
+                        if self.column==0 and self.row==0:
+                            fieldBtn[self.row][self.column]=2
+                            fieldBtn[self.row][self.column+1]=2
+                            fieldBtn[self.row+1][self.column]=2
+                            fieldBtn[self.row+1][self.column+1]=2
+                        elif self.column==0 and self.row+1==r:
+                            fieldBtn[self.row][self.column]=2
+                            fieldBtn[self.row][self.column+1]=2
+                            fieldBtn[self.row-1][self.column]=2
+                            fieldBtn[self.row-1][self.column+1]=2
+                        elif self.column+1==c and self.row==0:
+                            fieldBtn[self.row][self.column]=2
+                            fieldBtn[self.row][self.column-1]=2
+                            fieldBtn[self.row+1][self.column]=2
+                            fieldBtn[self.row+1][self.column-1]=2
+                        elif self.column==0:
+                            fieldBtn[self.row][self.column]=2
+                            fieldBtn[self.row][self.column+1]=2
+                            fieldBtn[self.row-1][self.column]=2
+                            fieldBtn[self.row+1][self.column]=2
+                            fieldBtn[self.row-1][self.column+1]=2
+                            fieldBtn[self.row+1][self.column+1]=2
+                        elif self.row==0:
+                            fieldBtn[self.row][self.column-1]=2
+                            fieldBtn[self.row][self.column]=2
+                            fieldBtn[self.row][self.column+1]=2
+                            fieldBtn[self.row+1][self.column]=2
+                            fieldBtn[self.row+1][self.column-1]=2
+                            fieldBtn[self.row+1][self.column+1]=2
+                        elif self.column+1==c and self.row+1==r:
+                            fieldBtn[self.row][self.column]=2
+                            fieldBtn[self.row][self.column-1]=2
+                            fieldBtn[self.row-1][self.column]=2
+                            fieldBtn[self.row-1][self.column-1]=2
+                        elif self.column+1==c:
+                            fieldBtn[self.row][self.column]=2
+                            fieldBtn[self.row][self.column-1]=2
+                            fieldBtn[self.row-1][self.column]=2
+                            fieldBtn[self.row+1][self.column]=2
+                            fieldBtn[self.row-1][self.column-1]=2
+                            fieldBtn[self.row+1][self.column-1]=2
+                        elif self.row+1==r:
+                            fieldBtn[self.row][self.column-1]=2
+                            fieldBtn[self.row][self.column]=2
+                            fieldBtn[self.row][self.column+1]=2
+                            fieldBtn[self.row-1][self.column]=2
+                            fieldBtn[self.row-1][self.column-1]=2
+                            fieldBtn[self.row-1][self.column+1]=2
+                        else:
+                            fieldBtn[self.row][self.column-1]=2
+                            fieldBtn[self.row][self.column]=2
+                            fieldBtn[self.row][self.column+1]=2
+                            fieldBtn[self.row+1][self.column-1]=2
+                            fieldBtn[self.row+1][self.column]=2
+                            fieldBtn[self.row+1][self.column+1]=2
+                            fieldBtn[self.row-1][self.column-1]=2
+                            fieldBtn[self.row-1][self.column]=2
+                            fieldBtn[self.row-1][self.column+1]=2
+                    if self.opened==0 and self.BombsNear==0:
+                        self.opened=1
+                        ButtonsOpen+=1
+                        self.text(' ')
+                        update()
+                    if self.opened==0:
+                        self.opened=1
+                        ButtonsOpen+=1
+                    if IsItButton and self.BombsNear==0:
+                        for n in range(20):
+                            update()
+                    elif IsItButton:
+                        update()
+                    
+            else:
+                for r1 in range(r):
+                    for c1 in range(c):
+                        Buttons[r1][c1].color('white')
+                End=1
+                self.text('*')
+                for r1 in range(r):
+                    for c1 in range(c):
+                        Buttons[r1][c1].color('orange')
+                        if field[r1][c1]==1:
+                            Buttons[r1][c1].text('*')
+                self.btn['bg']='orange'
+                Buttons[int(r/2-0.5)][int(c/2-0.5)].btn.config(bg='white',text='')
+                Buttons[int(r/2-0.5)][int(c/2-0.5)].text('Конец')
+                Buttons[int(r/2-0.5)][int(c/2-0.5)].btn['fg']='black'
+                Buttons[int(r/2+0.5)][int(c/2-0.5)].NewCom()
+        elif not button and End==0 and self.opened==0:
+            if self.btn['text']=='':
+                self.btn.config(bg='yellow',text='*')
+                bombsDiscover+=1
+                if bombs-bombsDiscover>-1:
+                    tk.title('Сапёр - бомб:%d'%(bombs-bombsDiscover))
+            elif self.btn['text']=='*':
+                self.btn.config(bg='white',text='')
+                bombsDiscover-=1
+                if not bombs-bombsDiscover>bombs and bombs-bombsDiscover>-1:
+                    tk.title('Сапёр - бомб:%d'%(bombs-bombsDiscover))
+    def check(self):
+        global ButtonsOpen,bombsDiscover
+        if fieldBtn[self.row][self.column]==2 and not self.haveBomb:
+            self.btn.configure(relief=SUNKEN)#RAISED антоним
+            if self.btn['text']=='*':
+                self.btn.config(bg='white',text='')
+                bombsDiscover-=1
+                tk.title('Сапёр - бомб:%d'%(bombs-bombsDiscover))
+            if not self.BombsNear==0:
+                self.changeFG()
+                self.text(self.BombsNear)#change color and text
+            if self.opened==0:
+                self.opened=1
+                ButtonsOpen+=1
+            if self.BombsNear==0:
+                self.com(0,1,0)
+    def text(self,text):
+        self.btn['text']=text
+    def NewCom(self):
+        self.btn.config(bg='white',text='')
+        self.btn['command']=Preparing
+        self.text('Заново')
+        self.btn['fg']='black'
+        self.btn.configure(state=NORMAL)
+    def color(self,color):
+        if End==1:
+            if field[self.row][self.column]==1:
+                self.btn['bg']='orange'
+            elif self.btn['text']=='*' and field[self.row][self.column]==0:
+                self.btn['bg']='red'
+        else:
+            self.btn['bg']=color
+    def changeFG(self):
+        self.btn.configure(state=NORMAL)
+        if self.BombsNear==1:
+            self.btn['fg']='blue'
+        elif self.BombsNear==2:
+            self.btn['fg']='green'
+        elif self.BombsNear==3:
+            self.btn['fg']='red'
+        elif self.BombsNear==4:
+            self.btn['fg']='cyan'
+        elif self.BombsNear==5:
+            self.btn['fg']='orange'
+        elif self.BombsNear==6:
+            self.btn['fg']='brown'
+        elif self.BombsNear==7:
+            self.btn['fg']='pink'
+        elif self.BombsNear==8:
+            self.btn['fg']='purple'
+        
+def update():
+    for r1 in range(r):
+        for c1 in range(c):
+            Buttons[r1][c1].check()
+            if fieldBtn[r1][c1]==2 and Buttons[r1][c1].opened==0 and Buttons[r1][c1].haveBomb==0:
+                Buttons[r1][c1].check()
+    checkWin()
+def checkWin():
+    global End
+    if ButtonsOpen==c*r-bombs:
+        for r1 in range(r):
+            for c1 in range(c):
+                Buttons[r1][c1].color('white')
+        End=1
+        for r1 in range(r):
+            for c1 in range(c):
+                Buttons[r1][c1].color('orange')
+                if field[r1][c1]==1:
+                    Buttons[r1][c1].text('*')
+        Buttons[int(r/2-0.5)][int(c/2-0.5)].text('Победа')
+        Buttons[int(r/2+0.5)][int(c/2-0.5)].NewCom()
+
+def GenerateBomb():
+    x1=randint(0,r-1)
+    x2=randint(0,c-1)
+    if field[x1][x2]==0:
+        field[x1][x2]=1
+    else:
+        GenerateBomb()
+    
+def StartGame(event,Set):
+    global r,c,bombs,FirstGame,field,fieldBtn,Buttons,fieldBombsPlayer
+    if not FirstGame or Set:
+        FirstGame=0
+        if Set:
+            r=int(TextRow.get())
+            c=int(TextColumn.get())
+            bombs=int(TextBombs.get())
+        list = tk.grid_slaves()
+        for l in list:
+            l.destroy()
+        field=[[0]*c for i in range(r)]#bombs
+        fieldBtn=[[0]*c for i in range(r)]#state
+        Buttons=[['btn']*c for i in range(r)]#buttons
+        tk.title('Сапёр - бомб:%d'%(bombs-bombsDiscover))
+        tk.geometry('%dx%d'%(c*58,r*60))
+        for b in range(bombs):
+            GenerateBomb()
+        for r1 in range(r):
+            for c1 in range(c):
+                Buttons[r1][c1]=ButtonPro(tk,6,3,c1,r1)
+    
+def Preparing():
+    global TextRow,TextColumn,TextBombs,End,ButtonsOpen,bombsDiscover
+    list = tk.grid_slaves()
+    for l in list:
+        l.destroy()
+    
+    End=0
+    ButtonsOpen=0
+    bombsDiscover=0
+    
+    tk.geometry('565x86')
+    tk.title('Сапёр')
+
+    JustText1 = Label(text="Введите высоту поля(максимум:хз)")
+    JustText2 = Label(text="Введите ширину поля(максимум:хз)")
+    JustText3 = Label(text="Введите кол-во бомб(не больше поля)")
+    JustText1.grid(row=0, column=0, sticky="w")
+    JustText2.grid(row=1, column=0, sticky="w")
+    JustText3.grid(row=2, column=0, sticky="w")
+    
+    TextRow=StringVar()
+    TextColumn=StringVar()
+    TextBombs=StringVar()
+
+    EntryR = Entry(textvariable=TextRow)
+    EntryC = Entry(textvariable=TextColumn)
+    EntryB = Entry(textvariable=TextBombs)
+    EntryR.grid(row=0,column=1, padx=5, pady=5)
+    EntryC.grid(row=1,column=1, padx=5, pady=5)
+    EntryB.grid(row=2,column=1, padx=5, pady=5)
+    
+    GenerBtn1=Button(text='Создать с новыми настройками')
+    GenerBtn2=Button(text='Создать с старыми настройками')
+    GenerBtn1.bind('<Button-1>',lambda e,Settings=1: StartGame(e,Settings))
+    GenerBtn2.bind('<Button-1>',lambda e,Settings=0: StartGame(e,Settings))
+    GenerBtn1.grid(row=0,column=3)
+    GenerBtn2.grid(row=2,column=3)
+if __name__=="__main__":
+
+    Preparing()
+
+    tk.mainloop()
