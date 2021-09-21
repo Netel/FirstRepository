@@ -5,6 +5,7 @@ tk=Tk()
 tk.geometry('565x86')#5 высоты - 86, 13 ширины - 101
 FirstGame=1
 
+
 class ButtonPro:
     def __init__(self,tk,width,height,column,row):
         self.btn=Button(tk,width=width,height=height,bg='white',font=('Ariel',10))
